@@ -23,7 +23,44 @@
 
 set -euo pipefail
 
-ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_SLUG="hmwassim/breeze-onyx"
+REPO_REF="main"
+
+resolve_root_dir() {
+    # Normal case: script was cloned/downloaded and run as ./install.sh,
+    # so its src/ tree sits right next to it.
+    if [ -n "${BASH_SOURCE[0]:-}" ]; then
+        local script_dir
+        script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+        if [ -d "$script_dir/src" ]; then
+            ROOT_DIR="$script_dir"
+            return
+        fi
+    fi
+
+    # curl | bash case: only this script's text was piped in — ${BASH_SOURCE[0]}
+    # isn't even set, and there's no src/ tree anywhere on disk. Fetch the
+    # rest of the repo into a temp dir instead of failing.
+    echo "==> Running standalone (no local src/ tree found) — fetching breeze-onyx from GitHub" >&2
+    if ! command -v curl >/dev/null 2>&1 || ! command -v tar >/dev/null 2>&1; then
+        echo "error: need curl and tar to self-fetch; or clone the repo yourself and run ./install.sh" >&2
+        exit 1
+    fi
+    local tmp
+    tmp="$(mktemp -d)"
+    if ! curl -fsSL "https://github.com/$REPO_SLUG/archive/refs/heads/$REPO_REF.tar.gz" \
+            | tar -xz -C "$tmp" --strip-components=1; then
+        echo "error: couldn't download https://github.com/$REPO_SLUG (ref: $REPO_REF)" >&2
+        rm -rf "$tmp"
+        exit 1
+    fi
+    FETCHED_ROOT_DIR="$tmp"
+    ROOT_DIR="$tmp"
+}
+
+ROOT_DIR=""
+FETCHED_ROOT_DIR=""
+resolve_root_dir
 SRC_GTK="$ROOT_DIR/src/gtk"
 SRC_COLORS="$ROOT_DIR/src/colors/BreezeOnyx.colors.in"
 SRC_ADWAITA="$ROOT_DIR/src/gtk4-adwaita/adwaita-onyx.css.in"
@@ -119,7 +156,7 @@ SCHEME_ID="${THEME_NAME//-/}"
 # --- build -------------------------------------------------------------
 
 BUILD_DIR="$(mktemp -d)"
-trap 'rm -rf "$BUILD_DIR"' EXIT
+trap 'rm -rf "$BUILD_DIR" "$FETCHED_ROOT_DIR"' EXIT
 
 render() {
     # render <template-file> <output-file>

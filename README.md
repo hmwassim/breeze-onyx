@@ -33,7 +33,27 @@ system, and it can produce more than one variant side by side.
 
 ## Install
 
+Either clone it and run the script locally:
+
 ```sh
+git clone https://github.com/hmwassim/breeze-onyx.git
+cd breeze-onyx
+./install.sh
+```
+
+...or run it standalone with curl. install.sh detects when it's not
+sitting next to its own `src/` tree (which is always true for a piped
+script — none of the repo's other files travel with it) and fetches
+the rest of the repo into a temp dir automatically before building:
+
+```sh
+curl -sL https://raw.githubusercontent.com/hmwassim/breeze-onyx/main/install.sh | bash
+```
+
+Flags work the same either way, just passed after `-s --` when piped:
+
+```sh
+curl -sL https://raw.githubusercontent.com/hmwassim/breeze-onyx/main/install.sh | bash -s -- --bg black
 ./install.sh                                   # Breeze-Onyx, #151515
 ./install.sh --bg black                        # a preset
 ./install.sh --bg 1a1a2e                       # any hex you like
