@@ -1,0 +1,39 @@
+/* breeze-onyx — libadwaita background override.
+ *
+ * libadwaita apps (gnome-calculator, Nautilus, gnome-text-editor, ...)
+ * ignore GTK theme files and gtk-theme-name entirely. The only thing
+ * they honor is GTK4's per-user stylesheet at
+ * $XDG_CONFIG_HOME/gtk-4.0/gtk.css, which GTK loads unconditionally
+ * (there is no separate "gtk-dark.css" equivalent for this path) and
+ * applies with higher priority than any theme.
+ *
+ * The token names and values below are taken verbatim from
+ * libadwaita's own dark palette
+ * (org/gnome/Adwaita/styles/defaults-dark.css, extracted from
+ * libadwaita-1.so.0). Only the *_bg_color / *_backdrop_color tokens
+ * are overridden here — foregrounds, accent_color, and the
+ * destructive/success/warning/error colors are left alone, so they
+ * keep whatever libadwaita (or an accent-color extension) already
+ * provides.
+ *
+ * card_bg_color is intentionally NOT overridden: upstream defines it
+ * as a translucent white overlay (rgba(255,255,255,0.08)), not an
+ * absolute color, so it already composites correctly on top of
+ * whatever is behind it.
+ *
+ * This assumes your system is using a dark color-scheme preference,
+ * same as the rest of breeze-onyx. In light mode this will force dark
+ * backgrounds while foregrounds stay light-mode (dark) colors, which
+ * is unreadable — pass --no-gtk4-override if you're not running dark
+ * mode system-wide.
+ */
+@define-color window_bg_color #%%BG_HEX%%;
+@define-color view_bg_color #%%BG_HEX%%;
+@define-color headerbar_bg_color #%%BG_HEX%%;
+@define-color sidebar_bg_color #%%BG_HEX%%;
+@define-color sidebar_backdrop_color #%%BG_HEX%%;
+@define-color secondary_sidebar_bg_color #%%BG_HEX%%;
+@define-color secondary_sidebar_backdrop_color #%%BG_HEX%%;
+@define-color popover_bg_color #%%BG_HEX%%;
+@define-color dialog_bg_color #%%BG_HEX%%;
+@define-color thumbnail_bg_color #%%BG_HEX%%;
